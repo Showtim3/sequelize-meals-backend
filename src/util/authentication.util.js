@@ -38,7 +38,6 @@ class AuthenticationUtil {
     }
 
     static async getUserFromJWTToken(jwtToken){
-
         try {
             const decoded = JWT.verify(jwtToken, JWT_SECRET);
             const {user_id, expireAt} = decoded;

@@ -20,6 +20,9 @@ module.exports = {
       role: {
         type: Sequelize.STRING
       },
+      calorieGoal: {
+        type: Sequelize.NUMBER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

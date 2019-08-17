@@ -13,7 +13,7 @@ class ServiceResponse {
     }
 
     static forbiddenAccess() {
-        return {success: false, message: 'Resource not found', data:null, httpCode: 404};
+        return {success: false, message: 'You are not authorized for this action.', data:null, httpCode: 404};
     }
 }
 module.exports = {

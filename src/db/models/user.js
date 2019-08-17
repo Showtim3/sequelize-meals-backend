@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       values: ['admin', 'manager','regular']
     },
     email: DataTypes.STRING,
+    calorieGoal: DataTypes.INTEGER,
   }, {
     getterMethods: {
       getUser(){

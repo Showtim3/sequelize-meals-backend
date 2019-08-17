@@ -5,16 +5,16 @@ const bcryptjs = require('bcryptjs');
 const AuthenticationUtil = require('../util/authentication.util').AuthenticationUtil;
 const CanUtil = require('../util/can.util').CanUtil;
 const CanEnum = require('../util/can.util').CanEnum;
-
+const EnumRole = require('../db/enum/Erole').EnumRole;
 const ERROR_STRING = 'Unexpected Error Occurred';
 class UserService {
 
-    static async register({name,email,password,role,calorieGoal}) {
-        if (email && await UserEntity.findOne({where: {email: email}})) {
-            return ServiceResponse.error('User Already Exists');
+    static async register({name,email,password='',role=EnumRole.REGULAR,calorieGoal}) {
+        if (email && await UserEntity.findOne({where: {email:email.toLowerCase()}})) {
+            return ServiceResponse.error('User Already Exists With Email');
         } else {
             try {
-                const validationResponse = UserValidator.validateRegister({name, email, password,role, calorieGoal});
+                const validationResponse = UserValidator.validateRegister({name, email:email.toLowerCase(), password,role, calorieGoal});
                 if (!validationResponse.success) {
                     return ServiceResponse.error(validationResponse.message);
                 } else {
@@ -66,11 +66,88 @@ class UserService {
         return ServiceResponse.forbiddenAccess();
     }
 
+    static async updateUser(jwt, id, {name,email,calorieGoal,role}) {
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        const user = await UserEntity.findByPk(id);
+        if(user){
+            if(CanUtil.canUserToUser(currentUser,user,CanEnum.CAN_EDIT_USER)){
+                try {
+                    const Name = name || user.dataValues.name;
+                    const Email = email || user.dataValues.email;
+                    const CalorieGoal = calorieGoal || user.dataValues.calorieGoal;
+                    const Role = role || user.dataValues.role;
+                    const validationResponse = UserValidator.validateRegister({name: Name,email: Email,calorieGoal: CalorieGoal,role: Role, update:true});
+                    if(!validationResponse.success) {
+                        return ServiceResponse.error(validationResponse.message);
+                    }
+                    await UserEntity.update({name: Name, email: Email, calorieGoal: CalorieGoal, role: Role}, {where:{id}});
+                    const updatedUser = await UserEntity.findByPk(id);
+                    return ServiceResponse.success('User Updated Successfully.', {updatedUser});
+                } catch (e) {
+                    return ServiceResponse.error(ERROR_STRING);
+                }
+            } else return ServiceResponse.forbiddenAccess()
+        }
+        return ServiceResponse.notFoundError();
+    }
+
+    static async getUser(jwt,id){
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        if(!id){
+            id = currentUser.id;
+        }
+        const user = await UserEntity.findByPk(id);
+        if(user){
+            if(CanUtil.canUserToUser(currentUser,user,CanEnum.CAN_VIEW_USER)){
+                try {
+                    return ServiceResponse.success('',{user} );
+                } catch (e) {
+                    return ServiceResponse.error(ERROR_STRING);
+                }
+            } else return ServiceResponse.forbiddenAccess()
+        }
+        return ServiceResponse.notFoundError();
+
+    }
+
+    static async createUser(jwt,{name,email,role,calorieGoal, password}){
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        if(currentUser.role === EnumRole.REGULAR){
+            return ServiceResponse.forbiddenAccess();
+        }
+        if(currentUser.role === EnumRole.MANAGER && [EnumRole.MANAGER, EnumRole.ADMIN].includes(role)){
+            return ServiceResponse.forbiddenAccess();
+        }
+
+        const sr =  await this.register({email, name, calorieGoal, role, password});
+        if(sr.success){
+            sr.message = 'User Created Successfully';
+        }
+        return sr;
+
+    }
+
+    static async deleteUser(jwt, id){
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        const user = await UserEntity.findByPk(id);
+        if(user){
+            if(CanUtil.canUserToUser(currentUser,user,CanEnum.CAN_EDIT_USER)){
+                try {
+                    await UserEntity.destroy({where:{id}});
+                    return ServiceResponse.success('User Deleted Successfully' );
+                } catch (e) {
+                    return ServiceResponse.error(ERROR_STRING);
+                }
+            } else return ServiceResponse.forbiddenAccess()
+        }
+        return ServiceResponse.notFoundError();
+    }
+
     static async logout(jwt) {
         try {
             const user = await AuthenticationUtil.getUserFromJWTToken(jwt);
             await AuthenticationUtil.removeJWTToken({jwtToken: jwt, user});
-            return ServiceResponse.success(null, 'Logged out successful');
+            return ServiceResponse.success(null, 'Logged out successfully');
         }catch (e) {
             return ServiceResponse.error(ERROR_STRING);
         }
