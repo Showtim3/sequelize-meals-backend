@@ -14,8 +14,14 @@ module.exports = {
       title: {
         type: Sequelize.STRING
       },
-      minCalorie: {
-        type: Sequelize.STRING
+      date: {
+        type: Sequelize.DATE
+      },
+      time: {
+        type: Sequelize.TIME,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,

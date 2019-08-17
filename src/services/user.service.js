@@ -49,6 +49,7 @@ class UserService {
             }
             else return ServiceResponse.error('Invalid Credentials',null, 404);
         }
+        else return ServiceResponse.error('Invalid Credentials',null, 404);
     }
 
     static async getUsers(jwt) {
