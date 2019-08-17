@@ -1,6 +1,8 @@
-import UUIDV4 from 'uuid/v4';
-import JWT from 'jsonwebtoken';
-import moment from 'moment';
+const UUIDV4 = require('uuid/v4');
+const JWT = require('jsonwebtoken');
+const moment  = require('moment');
+
+const UserEntity = require('../app/model.service').UserEntity;
 
 const JWT_SECRET = '04i-293u4-0234';
 const JWT_EXPIRATION_SECONDS = 60 * 60 * 24;
@@ -35,43 +37,23 @@ class AuthenticationUtil {
         }
     }
 
-    static async getUserFromJWTToken(jwtToken, repoService){
+    static async getUserFromJWTToken(jwtToken){
 
         try {
             const decoded = JWT.verify(jwtToken, JWT_SECRET);
             const {user_id, expireAt} = decoded;
-            // if ( !this.validJWTS[user_id].includes(jwtToken))
-            //     return null;
             if (expireAt < moment().toISOString()) { // if expiredAt is lesser than current time
                 return null;
             }
-            const user = await repoService.userRepo.findOne(user_id);
-            return user;
+            const user = await UserEntity.findByPk(user_id);
+            return user.dataValues;
 
         } catch (e) {
             return null;
         }
     }
-
-    // static async authenticateJWTToken(jwtToken: string): Promise<boolean> {
-    //     try {
-    //         const decoded: any = JWT.verify(jwtToken, CONFIG.SECRET);
-    //         const {user_id, expireAt} = decoded;
-    //         if (expireAt < moment().toISOString()) { // if expiredAt is lesser than current time
-    //             return false;
-    //         }
-    //         const user = User.active().findOne({where: {id: user_id}});
-    //         if (user)
-    //         if (user) {
-    //             return true;
-    //         } else return false;
-    //     } catch (e) {
-    //         return false;
-    //     }
-    // }
-
 }
 
 module.exports = {
     AuthenticationUtil
-}
+};

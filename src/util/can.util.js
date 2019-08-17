@@ -1,5 +1,4 @@
-const EnumRole = require('../../db/enum/Erole').EnumRole;
-
+const EnumRole = require('../db/enum/Erole').EnumRole;
 var CanEnum =  {
     CAN_EDIT_USER : 'can_edit_user',
     CAN_VIEW_USER : 'can_view_user',
@@ -7,9 +6,9 @@ var CanEnum =  {
 
     CAN_EDIT_MEAL : 'can_edit_meal',
     CAN_VIEW_MEAL : 'can_view_meal',
-}
+};
 
-class Can {
+class CanUtil {
     static canUserToUser(currentUser, otherUser, action) {
         switch (action) {
             case CanEnum.CAN_EDIT_USER:
@@ -34,5 +33,6 @@ class Can {
 }
 
 module.exports = {
-    Can
+    CanUtil,
+    CanEnum
 };

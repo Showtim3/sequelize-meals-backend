@@ -6,4 +6,4 @@ var EnumRole = {
 
 module.exports = {
     EnumRole
-}
+};

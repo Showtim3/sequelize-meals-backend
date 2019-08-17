@@ -8,10 +8,9 @@ module.exports = (sequelize, DataTypes) => {
       values: ['admin', 'manager','regular']
     },
     email: DataTypes.STRING,
-    password: DataTypes.STRING,
   }, {
     getterMethods: {
-      user(){
+      getUser(){
         const userObj = {
           name: this.name,
         };
