@@ -21,7 +21,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon src/app/server.js",
     "migration:generate": "node_modules/.bin/sequelize migration:generate",
-    "migration: create": "node_modules/.bin/sequelize model:generate",
+    "model:create": "node_modules/.bin/sequelize model:generate",
     "db:migrate": "node_modules/.bin/sequelize db:migrate"
   },
   "author": "",
