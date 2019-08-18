@@ -41,7 +41,6 @@ userRouter.get('/', async (req,res) => {
 
 userRouter.post('/', async (req,res) => {
     const jwt = req.headers['jwt'];
-    const userId = req.params.id;
     const {name,email,calorieGoal,role, password} = req.body;
     const sr = await UserService.createUser(jwt, {name,email,calorieGoal,role,password});
     res.send(sr);

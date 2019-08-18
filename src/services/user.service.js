@@ -89,7 +89,7 @@ class UserService {
                 }
             } else return ServiceResponse.forbiddenAccess()
         }
-        return ServiceResponse.notFoundError();
+        else return ServiceResponse.notFoundError();
     }
 
     static async getUser(jwt,id){

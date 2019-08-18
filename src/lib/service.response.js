@@ -9,7 +9,7 @@ class ServiceResponse {
     };
 
    static notFoundError() {
-        return {success: false, message: 'Resource not found', data:null, httpCode: 404};
+        return {success: false, message: 'Requested resource not found', data:null, httpCode: 404};
     }
 
     static forbiddenAccess() {
