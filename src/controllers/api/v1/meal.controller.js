@@ -11,9 +11,13 @@ mealRouter.post('/', async (req,res) => {
 });
 
 
-mealRouter.get('/', async (req,res) => {
-    res.send("Hello from meal");
+mealRouter.get('/:id', async (req,res) => {
+    const jwt = req.headers['jwt'];
+    const mealId = req.params.id;
+    const sr = await MealService.getMeal(jwt,mealId);
+    res.send(sr);
 });
+
 
 module.exports = {mealRouter};
 

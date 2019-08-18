@@ -31,6 +31,23 @@ class MealService {
             return ServiceResponse.forbiddenAccess();
         }
     }
+    static async getMeal(jwt, mealId){
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        if(!currentUser) {
+            return ServiceResponse.forbiddenAccess();
+        }
+        try {
+            const meal = await MealEntity.findByPk(mealId);
+            if (meal) {
+                if (CanUtil.canUserToMeal(currentUser, meal, CanEnum.CAN_VIEW_MEAL)) {
+                    return ServiceResponse.success('', meal);
+                } else return ServiceResponse.forbiddenAccess();
+            } else return ServiceResponse.notFoundError();
+        } catch (e) {
+            console.log(e);
+            return ServiceResponse.error(ERROR_STRING);
+        }
+    }
 }
 
 module.exports = {
