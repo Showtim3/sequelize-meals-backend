@@ -1,5 +1,5 @@
 const MealEntity = require('../app/model.service').MealEntity;
-const UserEntity = require('../app/model.service').UserEntity;
+const Op = require('../app/model.service').Op;
 const ServiceResponse = require('../lib/service.response').ServiceResponse;
 const MealValidator = require('../lib/validators/meal.validator').MealValidator;
 
@@ -27,6 +27,40 @@ class MealService {
             }
         } else {
             return ServiceResponse.forbiddenAccess();
+        }
+    }
+
+    static async getMeals(jwt,{minCalorie=0,maxCalorie=10000,minDate='2000-01-01',maxDate='3000-12-12',minTime='00:00',maxTime='23:59',limit=100,offset=0}) {
+        const currentUser = await AuthenticationUtil.getUserFromJWTToken(jwt);
+        let limitedAccess = false;
+        if(!currentUser) {
+            return ServiceResponse.forbiddenAccess();
+        }
+        try {
+            if(currentUser.role === EnumRole.MANAGER || currentUser.role === EnumRole.REGULAR){
+                limitedAccess = true;
+            }
+            const meals = await MealEntity.findAll({
+                where: {
+                        date: {
+                            [Op.between]: [minDate, maxDate]
+                        },
+                        time: {
+                            [Op.between]:[minTime, maxTime]
+                        },
+                        calorie: {
+                            [Op.between]: [minCalorie,maxCalorie]
+                        },
+                        userId: limitedAccess ? currentUser.id : {[Op.gte]: [0]}
+                    },
+                limit,
+                offset,
+            });
+            console.log(meals);
+            return ServiceResponse.success('',{meals});
+        } catch (e) {
+            console.log(e);
+            return ServiceResponse.error(ERROR_STRING);
         }
     }
 

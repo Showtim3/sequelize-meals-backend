@@ -12,7 +12,9 @@ sequelize.authenticate().then(() => {
 
 const MealService = Meal(sequelize, Sequelize);
 const UserService = User(sequelize, Sequelize);
+const Op = Sequelize.Op;
 module.exports = {
     MealService,
-    UserService
+    UserService,
+    Op
 };

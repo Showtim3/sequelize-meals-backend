@@ -19,7 +19,8 @@ mealRouter.get('/:id', async (req,res) => {
 
 mealRouter.get('/', async (req,res) => {
     const jwt = req.headers['jwt'];
-    const sr = await MealService.getMeals(jwt);
+    const {minCalorie,maxCalorie,minDate,maxDate,minTime,maxTime,limit,offset} = req.body;
+    const sr = await MealService.getMeals(jwt,{minCalorie,maxCalorie,minDate,maxDate,minTime,maxTime,limit,offset});
     res.send(sr);
 });
 
